@@ -49,6 +49,8 @@ void test()
           GREEN("create");
         } else if (event->mask & IN_DELETE) {
           GREEN("delete");
+        } else if (event->mask & IN_MODIFY) {
+          GREEN("modity");
         }
       }
       i += EVENT_SIZE + event->len;
