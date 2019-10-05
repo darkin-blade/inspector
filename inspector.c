@@ -30,8 +30,8 @@ int main(int argc, char *argv[])
   fd = inotify_init();// 创建inotify实例
   assert(fd >= 0);
   add_watch(root_path);// 开始递归监视
-  // test();
-  // remove_watch();
+  test();
+  remove_watch();
 
   return 0;
 }
