@@ -40,6 +40,10 @@ void add_watch(const char *dir_path)
 {
   assert(dir_path != NULL);
   if (dir_path[0] == '.') return;// 不监视隐藏文件
+  if (total_watch >= 127) {// 到达上限
+    GREEN("can't inspect");
+    return;
+  }
 
   DIR *dir = opendir(dir_path);
   struct dirent *dir_item;
@@ -81,7 +85,10 @@ void test()
         } else if (event->mask & IN_CLOSE_NOWRITE) {
           GREEN("close no write");
         } else if (event->mask & IN_CREATE) {
-          GREEN("create");
+          GREEN("create %s", event->name);
+          if (event->mask & IN_ISDIR) {// 对新的目录进行监视
+            add_watch(event->name);
+          }
         } else if (event->mask & IN_DELETE) {
           GREEN("delete");
         } else if (event->mask & IN_DELETE_SELF) {
