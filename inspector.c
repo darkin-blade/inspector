@@ -15,6 +15,11 @@
 char root_path[128];// 监视的文件根目录
 
 void test();
+void add_watch();// 递归添加所有子目录监视
+void remove_watch();// 结束监视
+
+int fd = 0;// 监视的实例
+int watch_id = 0;
 
 int main(int argc, char *argv[])
 {
@@ -37,18 +42,32 @@ int main(int argc, char *argv[])
   GREEN("mvfrom: %d", IN_MOVED_FROM);
   GREEN("moveto: %d", IN_MOVED_TO);
 
+  add_watch();
   test();
+  remove_watch();
 
   return 0;
 }
 
-void test()
+void add_watch()
 {
-  int fd = inotify_init();// 创建inotify实例
+  DIR *dir = NULL;
+  struct dirent file;
+  fd = inotify_init();// 创建inotify实例
   assert(fd >= 0);
 
+  watch_id = inotify_add_watch(fd, root_path, IN_CREATE | IN_DELETE | IN_MODIFY);// 对指定路径进行监视
+}
+
+void remove_watch()
+{
+  inotify_rm_watch(fd, watch_id);
+  close(fd);
+}
+
+void test()
+{
   char buf[EVENT_BUF_LEN];
-  int watch_id = inotify_add_watch(fd, root_path, IN_CREATE | IN_DELETE | IN_MODIFY);// 对指定路径进行监视
 
   while (1) {
     int length = read(fd, buf, EVENT_BUF_LEN);
@@ -84,7 +103,4 @@ void test()
       i += EVENT_SIZE + event->len;
     }
   }
-
-  inotify_rm_watch(fd, watch_id);
-  close(fd);
 }
