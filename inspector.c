@@ -30,33 +30,37 @@ int main(int argc, char *argv[])
   }
   GREEN("%s", root_path);
 
-  GREEN("access: %d", IN_ACCESS);
-  GREEN("attrib: %d", IN_ATTRIB);
-  GREEN("closew: %d", IN_CLOSE_WRITE);
-  GREEN("closen: %d", IN_CLOSE_NOWRITE);
-  GREEN("create: %d", IN_CREATE);
-  GREEN("delete: %d", IN_DELETE);
-  GREEN("delets: %d", IN_DELETE_SELF);
-  GREEN("modity: %d", IN_MODIFY);
-  GREEN("mvselt: %d", IN_MOVE_SELF);
-  GREEN("mvfrom: %d", IN_MOVED_FROM);
-  GREEN("moveto: %d", IN_MOVED_TO);
+  // GREEN("access: %d", IN_ACCESS);
+  // GREEN("attrib: %d", IN_ATTRIB);
+  // GREEN("closew: %d", IN_CLOSE_WRITE);
+  // GREEN("closen: %d", IN_CLOSE_NOWRITE);
+  // GREEN("create: %d", IN_CREATE);
+  // GREEN("delete: %d", IN_DELETE);
+  // GREEN("delets: %d", IN_DELETE_SELF);
+  // GREEN("modity: %d", IN_MODIFY);
+  // GREEN("mvselt: %d", IN_MOVE_SELF);
+  // GREEN("mvfrom: %d", IN_MOVED_FROM);
+  // GREEN("moveto: %d", IN_MOVED_TO);
 
   add_watch();
-  test();
-  remove_watch();
+  // test();
+  // remove_watch();
 
   return 0;
 }
 
 void add_watch()
 {
-  DIR *dir = NULL;
-  struct dirent file;
+  DIR *dir = opendir(root_path);
+  struct dirent *dir_item;
   fd = inotify_init();// 创建inotify实例
   assert(fd >= 0);
 
   watch_id = inotify_add_watch(fd, root_path, IN_CREATE | IN_DELETE | IN_MODIFY);// 对指定路径进行监视
+  dir = opendir(root_path);
+  while (dir_item = readdir(dir)) {
+    GREEN("%s %d", dir_item->d_name, dir_item->d_type);
+  }
 }
 
 void remove_watch()

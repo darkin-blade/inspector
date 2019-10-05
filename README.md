@@ -2,5 +2,5 @@
 
 ```c
 DIR *dir = opendir("");
-struct dirent file = readdir(dir);
+struct dirent *file = readdir(dir);
 ```
