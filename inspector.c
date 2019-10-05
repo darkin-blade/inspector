@@ -1,25 +1,10 @@
-#include <assert.h>
-#include <dirent.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
-
-#include <sys/inotify.h>
-
-#define GREEN(format, ...) \
-  printf("\033[1;32m" format "\33[0m\n", ## __VA_ARGS__)
-#define EVENT_SIZE (sizeof(struct inotify_event))
-#define EVENT_BUF_LEN (1024 * (EVENT_SIZE + 16))
+#include "inspector.h"
 
 char root_path[128];// 监视的文件根目录
 
-void test();
-void add_watch();// 递归添加所有子目录监视
-void remove_watch();// 结束监视
-
 int fd = 0;// 监视的实例
-int watch_id = 0;
+int watch_id[128];// 最多128个子目录
+int total_watch = 0;// 初始化为0个目录
 
 int main(int argc, char *argv[])
 {
@@ -42,30 +27,34 @@ int main(int argc, char *argv[])
   // GREEN("mvfrom: %d", IN_MOVED_FROM);
   // GREEN("moveto: %d", IN_MOVED_TO);
 
-  add_watch();
+  fd = inotify_init();// 创建inotify实例
+  assert(fd >= 0);
+  add_watch(root_path);// 开始递归监视
   // test();
   // remove_watch();
 
   return 0;
 }
 
-void add_watch()
+void add_watch(const char *dir_path)
 {
-  DIR *dir = opendir(root_path);
+  DIR *dir = opendir(dir_path);
   struct dirent *dir_item;
-  fd = inotify_init();// 创建inotify实例
-  assert(fd >= 0);
-
-  watch_id = inotify_add_watch(fd, root_path, IN_CREATE | IN_DELETE | IN_MODIFY);// 对指定路径进行监视
-  dir = opendir(root_path);
+  watch_id[total_watch] = inotify_add_watch(fd, dir_path, IN_CREATE | IN_DELETE | IN_MODIFY);// 对指定路径进行监视
+  total_watch ++;
   while (dir_item = readdir(dir)) {
     GREEN("%s %d", dir_item->d_name, dir_item->d_type);
+    if (dir_item->d_type == 4) {// 是目录
+      add_watch(dir_item->d_name);// 递归
+    }
   }
 }
 
 void remove_watch()
 {
-  inotify_rm_watch(fd, watch_id);
+  for (int i = 0; i < total_watch; i ++) {// 清除所有监视
+    inotify_rm_watch(fd, watch_id[i]);
+  }
   close(fd);
 }
 

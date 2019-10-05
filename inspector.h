@@ -1,0 +1,18 @@
+#include <assert.h>
+#include <dirent.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+
+#include <sys/inotify.h>
+
+#define GREEN(format, ...) \
+  printf("\033[1;32m" format "\33[0m\n", ## __VA_ARGS__)
+#define EVENT_SIZE (sizeof(struct inotify_event))
+#define EVENT_BUF_LEN (1024 * (EVENT_SIZE + 16))
+
+void test();
+void add_watch(const char *dir_path);// 递归添加所有子目录监视
+void remove_watch();// 结束监视
+
