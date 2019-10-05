@@ -25,6 +25,18 @@ int main(int argc, char *argv[])
   }
   GREEN("%s", root_path);
 
+  GREEN("access: %d", IN_ACCESS);
+  GREEN("attrib: %d", IN_ATTRIB);
+  GREEN("closew: %d", IN_CLOSE_WRITE);
+  GREEN("closen: %d", IN_CLOSE_NOWRITE);
+  GREEN("create: %d", IN_CREATE);
+  GREEN("delete: %d", IN_DELETE);
+  GREEN("delets: %d", IN_DELETE_SELF);
+  GREEN("modity: %d", IN_MODIFY);
+  GREEN("mvselt: %d", IN_MOVE_SELF);
+  GREEN("mvfrom: %d", IN_MOVED_FROM);
+  GREEN("moveto: %d", IN_MOVED_TO);
+
   test();
 
   return 0;
@@ -36,7 +48,7 @@ void test()
   assert(fd >= 0);
 
   char buf[EVENT_BUF_LEN];
-  int watch_id = inotify_add_watch(fd, root_path, IN_CREATE | IN_DELETE);// 对指定路径进行监视
+  int watch_id = inotify_add_watch(fd, root_path, IN_CREATE | IN_DELETE | IN_MODIFY);// 对指定路径进行监视
 
   while (1) {
     int length = read(fd, buf, EVENT_BUF_LEN);
