@@ -38,6 +38,9 @@ int main(int argc, char *argv[])
 
 void add_watch(const char *dir_path)
 {
+  assert(dir_path != NULL);
+  if (dir_path[0] == '.') return;// 不监视隐藏文件
+
   DIR *dir = opendir(dir_path);
   struct dirent *dir_item;
   watch_id[total_watch] = inotify_add_watch(fd, dir_path, IN_CREATE | IN_DELETE | IN_MODIFY);// 对指定路径进行监视
