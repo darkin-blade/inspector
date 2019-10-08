@@ -44,17 +44,18 @@ void add_watch(const char *dir_path)
     GREEN("can't inspect");
     return;
   }
+  GREEN("%s", dir_path);
 
   DIR *dir = opendir(dir_path);
   struct dirent *dir_item;
   watch_id[total_watch] = inotify_add_watch(fd, dir_path, IN_CREATE | IN_DELETE | IN_MODIFY);// 对指定路径进行监视
   total_watch ++;
-  while (dir_item = readdir(dir)) {
-    GREEN("%s %d", dir_item->d_name, dir_item->d_type);
-    if (dir_item->d_type == 4) {// 是目录
-      add_watch(dir_item->d_name);// 递归
-    }
-  }
+  // while (dir_item = readdir(dir)) {
+  //   // GREEN("%s %d", dir_item->d_name, dir_item->d_type);
+  //   if (dir_item->d_type == 4) {// 是目录
+  //     add_watch(dir_item->d_name);// 递归
+  //   }
+  // }
 }
 
 void remove_watch()

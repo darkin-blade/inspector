@@ -8,7 +8,7 @@
 #include <sys/inotify.h>
 
 #define GREEN(format, ...) \
-  printf("\033[1;32m" format "\33[0m\n", ## __VA_ARGS__)
+  printf("\033[1;32m[%s %d]" format "\33[0m\n", __func__, __LINE__, ## __VA_ARGS__)
 #define EVENT_SIZE (sizeof(struct inotify_event))
 #define EVENT_BUF_LEN (1024 * (EVENT_SIZE + 16))
 
