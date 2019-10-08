@@ -30,10 +30,8 @@ int main(int argc, char *argv[])
   fd = inotify_init();// 创建inotify实例
   assert(fd >= 0);
   add_watch(root_path);// 开始递归监视
-  test();
-  remove_watch();
-  close(fd);
-  GREEN("end");
+  signal(SIGTERM, end_watch);// ctrl + c
+  inspect();
 
   return 0;
 }
@@ -72,7 +70,7 @@ void remove_watch()
   total_watch = 0;
 }
 
-void test()
+void inspect()
 {
   char buf[EVENT_BUF_LEN];
 
@@ -112,4 +110,12 @@ void test()
       i += EVENT_SIZE + event->len;
     }
   }
+}
+
+void end_watch(int signum)
+{
+  // GREEN("end");
+  remove_watch();
+  close(fd);
+  exit(signum);
 }
