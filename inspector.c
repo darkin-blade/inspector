@@ -56,7 +56,7 @@ void add_watch(const char *dir_path)
     // GREEN("%s %d", dir_item->d_name, dir_item->d_type);
     if (dir_item->d_type == 4) {// 是目录
       char absolute_path[MAX_NAME];
-      sprintf(absolute_path, "%s/%s", root_path, dir_item->d_name);
+      sprintf(absolute_path, "%s/%s", dir_path, dir_item->d_name);
       add_watch(absolute_path);// 递归
     }
   }
@@ -91,9 +91,6 @@ void test()
           GREEN("close no write");
         } else if (event->mask & IN_CREATE) {
           GREEN("create %s", event->name);
-          if (event->mask & IN_ISDIR) {// 对新的目录进行监视
-            add_watch(event->name);
-          }
         } else if (event->mask & IN_DELETE) {
           GREEN("delete");
         } else if (event->mask & IN_DELETE_SELF) {
