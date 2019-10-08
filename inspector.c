@@ -32,6 +32,8 @@ int main(int argc, char *argv[])
   add_watch(root_path);// 开始递归监视
   test();
   remove_watch();
+  close(fd);
+  GREEN("end");
 
   return 0;
 }
@@ -43,7 +45,7 @@ void add_watch(const char *dir_path)
     GREEN("can't inspect");
     return;
   }
-  GREEN("%s", dir_path);
+  GREEN("%d: %s", total_watch, dir_path);
 
   DIR *dir = opendir(dir_path);
   struct dirent *dir_item;
@@ -67,7 +69,7 @@ void remove_watch()
   for (int i = 0; i < total_watch; i ++) {// 清除所有监视
     inotify_rm_watch(fd, watch_id[i]);
   }
-  close(fd);
+  total_watch = 0;
 }
 
 void test()
@@ -91,6 +93,8 @@ void test()
           GREEN("close no write");
         } else if (event->mask & IN_CREATE) {
           GREEN("create %s", event->name);
+          remove_watch();
+          add_watch(root_path);
         } else if (event->mask & IN_DELETE) {
           GREEN("delete");
         } else if (event->mask & IN_DELETE_SELF) {
