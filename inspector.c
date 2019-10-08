@@ -39,7 +39,6 @@ int main(int argc, char *argv[])
 void add_watch(const char *dir_path)
 {
   assert(dir_path != NULL);
-  if (dir_path[0] == '.') return;// 不监视隐藏文件
   if (total_watch >= 127) {// 到达上限
     GREEN("can't inspect");
     return;
@@ -50,12 +49,17 @@ void add_watch(const char *dir_path)
   struct dirent *dir_item;
   watch_id[total_watch] = inotify_add_watch(fd, dir_path, IN_CREATE | IN_DELETE | IN_MODIFY);// 对指定路径进行监视
   total_watch ++;
-  // while (dir_item = readdir(dir)) {
-  //   // GREEN("%s %d", dir_item->d_name, dir_item->d_type);
-  //   if (dir_item->d_type == 4) {// 是目录
-  //     add_watch(dir_item->d_name);// 递归
-  //   }
-  // }
+  while (dir_item = readdir(dir)) {
+    if (dir_item->d_name[0] == '.') {// 不监视隐藏文件
+      continue;
+    }
+    // GREEN("%s %d", dir_item->d_name, dir_item->d_type);
+    if (dir_item->d_type == 4) {// 是目录
+      char absolute_path[MAX_NAME];
+      sprintf(absolute_path, "%s/%s", root_path, dir_item->d_name);
+      add_watch(absolute_path);// 递归
+    }
+  }
 }
 
 void remove_watch()
