@@ -72,11 +72,20 @@ void remove_watch()
 
 void inspect()
 {
+  int last_time = time(NULL), cur_time = 0;
   char buf[EVENT_BUF_LEN];
 
   while (1) {
     int length = read(fd, buf, EVENT_BUF_LEN);
     GREEN("length: %d", length);
+
+    cur_time = time(NULL);
+    if (difftime(cur_time , last_time) < 2) {// 间隔过短
+      last_time = cur_time;
+      continue;
+    } else {
+      last_time = cur_time;
+    }
 
     for (int i = 0; i < length;) {
       struct inotify_event *event = (struct inotify_event *)&buf[i];
